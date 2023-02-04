@@ -20,7 +20,8 @@ class Recalls(object):
 
         self.df = self.df[REQUIRED_DATASET_COLUMNS].drop_duplicates()
         self.df.dropna(inplace=True)
-        self.filtered_df = self.df
+        self.manufacturer_query = None
+        self.vehicle_query = None
 
         nan_count = self.df.isna().sum().sum()
         if nan_count > 0:
@@ -88,20 +89,18 @@ class Recalls(object):
 
         if manufacturer is not None:
             query += f' & MFGTXT == "{manufacturer}"'
+            self.manufacturer_query = query
         
         if vehicle != '-':
             query += f' & VEHICLE == "{vehicle}"'
+            self.vehicle_query = query
+        else:
+            self.vehicle_query = None
 
-        self.filtered_df = self.df.query(query)
-        return self.filtered_df
-    
+        return self.get_data()
 
-    # def filter_by(self, manufacturer, vehicle):
-    #     self.filtered_df = self.df.query(
-    #         '(MFGTXT == @manufacturer) & (VEHICLE == @vehicle)'
-    #     )
+    def get_data(self, by_manufacturer_only = False):
 
-    #     return self.filtered_df
-
-    def get_data(self):
-        return self.filtered_df
+        if (by_manufacturer_only):
+            self.df.query(self.manufacturer_query)
+        return self.df.query(self.vehicle_query or self.manufacturer_query)

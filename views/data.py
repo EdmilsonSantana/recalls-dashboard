@@ -32,6 +32,7 @@ class DataView(object):
                                             options=st.session_state.recalls.get_manufacturers())
 
                 available_vehicles = st.session_state.recalls.get_vehicles_by_manufacturer(manufacturer)
+
                 vehicle = st.selectbox("Veículo",
                                        options=['-', *available_vehicles])
 
