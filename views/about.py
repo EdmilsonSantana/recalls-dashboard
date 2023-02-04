@@ -11,4 +11,4 @@ class AboutView(object):
                 abrangente dos dados de recalls da NHTSA e ajudá-lo a descobrir
                 quais componentes e veículos estão envolvidos em recalls mais frequentemente.''')
             st.write(
-                'Você pode fazer download do arquivo **FLAT_RCL.zip** na seção de recalls no [portal](https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.zips) da NHTSA')
+                'Você pode fazer download do arquivo **FLAT_RCL.zip** na seção de recalls no [portal](https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.zips) da NHTSA ou a partir desse [link](https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.zip)')
