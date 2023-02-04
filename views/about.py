@@ -9,6 +9,6 @@ class AboutView(object):
             st.title('NHTSA Recalls')
             st.write('''O objetivo deste dashboard é fornecer uma visão rápida e 
                 abrangente dos dados de recalls da NHTSA e ajudá-lo a descobrir
-                quais componentes estão envolvidos em recalls mais frequentemente.''')
+                quais componentes e veículos estão envolvidos em recalls mais frequentemente.''')
             st.write(
                 'Você pode fazer download do arquivo **FLAT_RCL.zip** na seção de recalls no [portal](https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.zips) da NHTSA')
