@@ -1,7 +1,7 @@
 VALID_RECALL_ID_PATTERN = '\d{2}[A-Z]{1}\d{2}(\d{1}|[A-Z])\d{3}'
 
-REQUIRED_DATASET_COLUMNS = ['CAMPNO', 'MAKETXT', 'MODELTXT', 'YEARTXT',
-                            'COMPNAME_GROUP', 'COMPNAME', 'MFGNAME', 'MFGTXT', 'POTAFF', 'RCDATE']
+REQUIRED_DATASET_COLUMNS = ['CAMPNO', 'VEHICLE', 'YEARTXT',
+                            'COMPNAME_GROUP', 'COMPNAME', 'MFGTXT', 'POTAFF', 'RCDATE']
 
 # https://static.nhtsa.gov/odi/ffdd/rcl/RCL.txt
 RECALLS_DATASET_COLUMNS = ['CAMPNO',

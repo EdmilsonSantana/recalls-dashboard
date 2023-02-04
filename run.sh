@@ -1,3 +1,3 @@
 #/bin/bash
 
-streamlit run app.py --server.port 8080 --server.maxUploadSize=1028
+streamlit run app.py --server.maxUploadSize=1028 --server.port 8080 

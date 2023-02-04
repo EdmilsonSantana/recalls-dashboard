@@ -11,7 +11,8 @@ class DataView(object):
     def on_change_upload_file(self):
         if st.session_state.file_uploader is not None:
             with st.spinner('Processando dados...'):
-                st.session_state.recalls = Recalls(st.session_state.file_uploader)
+                st.session_state.recalls = Recalls(
+                    st.session_state.file_uploader)
 
     def view(self):
         with st.container():
@@ -22,16 +23,25 @@ class DataView(object):
 
         with st.container():
             if 'recalls' in st.session_state:
-                manufacturer = st.selectbox("Manufacturer",
-                                            st.session_state.recalls.get_manufacturers())
-                recall_id = st.selectbox("Recall ID",
-                                         st.session_state.recalls.get_ids_by_manufacturer(manufacturer))
-                if (manufacturer):
-                    with st.spinner('Buscando...'):
-                        self.get_details(manufacturer, recall_id)
+                data_time_range = st.session_state.recalls.get_date_range()
 
-    def get_details(self, manufacturer, recall_id):
-        df = st.session_state.recalls.filter_by(manufacturer, recall_id)
+                time_range = st.slider(
+                    'Período de análise', data_time_range[0], data_time_range[1], (data_time_range[0], data_time_range[1]))
+
+                manufacturer = st.selectbox("Fabricante",
+                                            options=st.session_state.recalls.get_manufacturers())
+
+                available_vehicles = st.session_state.recalls.get_vehicles_by_manufacturer(manufacturer)
+                vehicle = st.selectbox("Veículo",
+                                       options=['-', *available_vehicles])
+
+                if (time_range or manufacturer):
+                    with st.spinner('Buscando...'):
+                        self.get_details(time_range, manufacturer, vehicle)
+
+    def get_details(self, time_range, manufacturer, vehicle):
+        df = st.session_state.recalls.filter_by(
+            time_range, manufacturer, vehicle)
 
         if (df is None):
             st.info('No data found', icon="ℹ️")

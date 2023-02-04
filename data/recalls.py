@@ -16,6 +16,7 @@ class Recalls(object):
         self.drop_invalid_vehicle_year()
         self.upper_case_columns()
         self.create_component_category()
+        self.concat_make_and_model()
 
         self.df = self.df[REQUIRED_DATASET_COLUMNS].drop_duplicates()
         self.df.dropna(inplace=True)
@@ -61,26 +62,46 @@ class Recalls(object):
         self.df.drop(self.df[self.df['YEARTXT'] ==
                      UNKNOWN_MODEL_YEAR].index, axis=0, inplace=True)
 
+    def concat_make_and_model(self):
+        self.df['VEHICLE'] = self.df[['MAKETXT', 'MODELTXT']].apply(
+            lambda row: ' '.join(row.values.astype(str)), axis=1)
+
     def upper_case_columns(self):
-        self.df['MFGNAME'] = self.df['MFGNAME'].str.upper()
+        # self.df['MFGNAME'] = self.df['MFGNAME'].str.upper()
         self.df['MFGTXT'] = self.df['MFGTXT'].str.upper()
 
     def get_manufacturers(self):
         return self.df['MFGTXT'].unique()
 
-    def get_ids_by_manufacturer(self, manufacturer):
-        return self.df[self.df['MFGTXT'] == manufacturer]
+    def get_vehicles_by_manufacturer(self, manufacturer):
+        return self.df[self.df['MFGTXT'] == manufacturer]['VEHICLE'].unique()
 
-    def filter_by(self, manufacturer, recall_id=None):
-        #if recall_id is not None:
-         #   return self.df[self.df['CAMPNO'] == recall_id]
-        
+    def get_date_range(self):
+        df_received_date = pd.to_datetime(self.df['RCDATE'])
+
+        first_report_year = int(df_received_date.min().strftime('%Y'))
+        last_report_year = int(df_received_date.max().strftime('%Y'))
+        return first_report_year, last_report_year
+
+    def filter_by(self, time_range, manufacturer, vehicle):
+        query = f'RCDATE.dt.year >= {time_range[0]} & RCDATE.dt.year <= {time_range[1]}'
+
         if manufacturer is not None:
-            self.filtered_df = self.df[self.df['MFGTXT'] == manufacturer]
-            return self.filtered_df
+            query += f' & MFGTXT == "{manufacturer}"'
+        
+        if vehicle != '-':
+            query += f' & VEHICLE == "{vehicle}"'
 
-        return None
+        self.filtered_df = self.df.query(query)
+        return self.filtered_df
     
+
+    # def filter_by(self, manufacturer, vehicle):
+    #     self.filtered_df = self.df.query(
+    #         '(MFGTXT == @manufacturer) & (VEHICLE == @vehicle)'
+    #     )
+
+    #     return self.filtered_df
+
     def get_data(self):
         return self.filtered_df
-
