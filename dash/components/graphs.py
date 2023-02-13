@@ -2,7 +2,7 @@ import plotly.express as px
 import pandas as pd
 from dash import dcc
 
-def get_horizontal_bar_chart(df: pd.DataFrame) -> None:
+def get_horizontal_bar_chart(df: pd.DataFrame) -> dcc.Graph:
     fig = px.bar(
         x=df.values,
         y=df.index,
