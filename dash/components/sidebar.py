@@ -1,12 +1,15 @@
-import dash_bootstrap_components as dbc
-from model.recalls import Recalls
-from dash import html
-from components.graphs import get_horizontal_bar_chart
 import datetime
+
+import dash_bootstrap_components as dbc
+import pandas as pd
+from dash import dcc, html
 from dateutil.relativedelta import relativedelta
+from model.recalls import Recalls
 
-def get_sidebar(recalls: Recalls) -> html.Div:
+from components.charts import get_horizontal_bar_chart
 
+
+def Sidebar(recalls: Recalls) -> html.Div:
     limit = 10
     last_year = datetime.datetime.now() - relativedelta(years=1)
 
@@ -23,15 +26,15 @@ def get_sidebar(recalls: Recalls) -> html.Div:
                 dbc.Tabs(
                     [
                         dbc.Tab(
-                            get_horizontal_bar_chart(df_by_manufacturers),
+                            get_sidebar_graph(df_by_manufacturers),
                             label=f'Top {limit} Manufacturers'
                         ),
                         dbc.Tab(
-                            get_horizontal_bar_chart(df_by_vehicles),
+                            get_sidebar_graph(df_by_vehicles),
                             label=f'Top {limit} Vehicles'
                         ),
                          dbc.Tab(
-                            get_horizontal_bar_chart(df_by_components),
+                            get_sidebar_graph(df_by_components),
                             label=f'Top {limit} Components'
                         ),
                     ]
@@ -40,3 +43,6 @@ def get_sidebar(recalls: Recalls) -> html.Div:
         ),
         style={'height': '100%'}
     )
+
+def get_sidebar_graph(df: pd.DataFrame) -> dcc.Graph:
+    return dcc.Graph(figure=get_horizontal_bar_chart(df), style={'height': '100%', 'width': '100%'})
