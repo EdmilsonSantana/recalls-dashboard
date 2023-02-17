@@ -84,6 +84,7 @@ class RecallsCharts(object):
         fig = px.violin(
             reported_recalls_and_affected_units,
             y='AFFECTED_UNITS',
+            labels={'AFFECTED_UNITS': 'Affected vehicle units'},
             color_discrete_sequence=px.colors.qualitative.T10,
             title='Number of affected vehicle units distribution'
         )
@@ -91,24 +92,48 @@ class RecallsCharts(object):
         fig.update_layout(yaxis_title=None, xaxis_title=None)
 
         return fig
-    
+
     def get_recalls_and_affected_units_by_vehicle_chart(self) -> Figure:
         recalls_and_affected_units_by_vehicle = self.recalls.get_recalls_and_affected_units_by_vehicle()
 
         if (recalls_and_affected_units_by_vehicle.empty):
             return {}
 
-        fig = px.scatter(recalls_and_affected_units_by_vehicle,
-                 y='RECALL_ID',
-                 x='AFFECTED_UNITS',
-                 hover_name='VEHICLE_MODEL',
-                 hover_data=['VEHICLE_YEAR'],
-                 color_discrete_sequence=px.colors.qualitative.T10,
-                 labels={'VEHICLE_MODEL': 'Vehicle Model',
-                         'VEHICLE_YEAR': 'Vehicle Year',
-                         'AFFECTED_UNITS': 'Affected vehicles',
-                         'RECALL_ID': 'Recalls'},
-                title='Number of recalls and affected vehicle units by vehicle'
+        fig = px.scatter(# Problem: vehicle with same x and y could be overlapped 
+            recalls_and_affected_units_by_vehicle,
+            y='RECALL_ID',
+            x='AFFECTED_UNITS',
+            hover_name='VEHICLE_MODEL',
+            hover_data=['MANUFACTURER', 'VEHICLE_YEAR'],
+            color_discrete_sequence=px.colors.qualitative.T10,
+            labels={'VEHICLE_MODEL': 'Vehicle Model',
+                    'VEHICLE_YEAR': 'Vehicle Year',
+                    'AFFECTED_UNITS': 'Affected vehicles',
+                    'MANUFACTURER': 'Manufacturer',
+                    'RECALL_ID': 'Recalls'},
+            title='Number of recalls and affected vehicle units by vehicle'
+        )
+
+        return fig
+
+    def get_recalls_distribution_chart(self) -> Figure:
+        recalls_distribution = self.recalls.get_recalls_distribution()
+
+        if (recalls_distribution.empty):
+            return {}
+
+        fig = px.scatter(
+            recalls_distribution,
+            y='VEHICLE_MODEL',
+            x='AFFECTED_UNITS',
+            hover_name='RECALL_ID',
+            hover_data=['MANUFACTURER', 'REPORTED_DATE'],
+            color_discrete_sequence=px.colors.qualitative.T10,
+            labels={'VEHICLE_MODEL': 'Recalled vehicles',
+                    'AFFECTED_UNITS': 'Affected vehicle units',
+                    'MANUFACTURER': 'Manufacturer',
+                    'REPORTED_DATE': 'Reported Date'},
+            title='Recalls distribution by number of affected units and vehicles recalled'
         )
 
         return fig

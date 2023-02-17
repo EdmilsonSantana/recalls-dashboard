@@ -5,6 +5,7 @@ from recalls import Recalls
 import pandas as pd
 from datetime import date
 
+
 def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
     recalls = Recalls(df)
     min_reported_date, max_reported_date = recalls.get_date_range()
@@ -43,7 +44,16 @@ def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
             dbc.Row([
                 dbc.Col(
                     dcc.Graph(id="recalls-and-affected-units-by-reported-date-graph")),
-                dbc.Col(dcc.Graph(id="affected-units-distribution-graph"))
+                dbc.Col(
+                    dcc.Graph(id="affected-units-distribution-graph")),
+            ])
+        ]),
+        Card([
+            dbc.Row([
+                dbc.Col(
+                    dcc.Graph(id="recalls-distribution")),
+                dbc.Col(
+                    dcc.Graph(id="recalls-and-affected-units-by-vehicle"))
             ])
         ]),
         Card([
@@ -52,12 +62,6 @@ def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
                     dcc.Graph(id="recalls-and-affected-units-by-component")),
             ])
         ]),
-        Card([
-            dbc.Row([
-                dbc.Col(
-                    dcc.Graph(id="recalls-and-affected-units-by-vehicle")),
-            ])
-        ])
     ])
 
 

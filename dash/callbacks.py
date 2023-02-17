@@ -25,6 +25,7 @@ def register_callbacks(app: dash.Dash, df: pd.DataFrame):
         Output("affected-units-distribution-graph", "figure"),
         Output("recalls-and-affected-units-by-component", "figure"),
         Output("recalls-and-affected-units-by-vehicle", "figure"),
+        Output("recalls-distribution", "figure"),
         Input("select-manufacturer", "value"),
         Input("select-vehicle", "value"),
         Input("reported-date-picker", "start_date"),
@@ -52,5 +53,6 @@ def register_callbacks(app: dash.Dash, df: pd.DataFrame):
             charts.get_recalls_and_affected_units_by_reported_period_chart(),
             charts.get_affected_units_distribution_chart(),
             charts.get_recalls_and_affected_units_by_component_chart(),
-            charts.get_recalls_and_affected_units_by_vehicle_chart()
+            charts.get_recalls_and_affected_units_by_vehicle_chart(),
+            charts.get_recalls_distribution_chart()
         ]

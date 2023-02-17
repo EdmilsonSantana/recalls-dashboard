@@ -80,10 +80,18 @@ class Recalls(object):
             ['VEHICLE_MODEL', 'VEHICLE_YEAR']).sum(numeric_only=True)
         recalls_by_vehicle = recalls.groupby(
             ['VEHICLE_MODEL', 'VEHICLE_YEAR']).count()
-        
+
         recalls_by_vehicle.drop(columns=['AFFECTED_UNITS'], inplace=True)
 
         return pd.merge(affected_units_by_vehicle, recalls_by_vehicle, left_index=True, right_index=True).reset_index()
+
+    def get_recalls_distribution(self) -> pd.DataFrame:
+        selected_columns = ['RECALL_ID', 'MANUFACTURER', 'REPORTED_DATE',
+                            'VEHICLE_MODEL', 'VEHICLE_YEAR', 'AFFECTED_UNITS']
+        recalls = self.df[selected_columns].drop_duplicates()
+
+        return recalls.groupby(
+            ['RECALL_ID', 'MANUFACTURER', 'AFFECTED_UNITS', 'REPORTED_DATE']).count().reset_index()
 
     def get_reported_recalls_and_affected_units(self) -> pd.DataFrame:
         return self.df[['RECALL_ID', 'REPORTED_DATE', 'AFFECTED_UNITS']].drop_duplicates()
