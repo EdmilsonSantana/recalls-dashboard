@@ -98,3 +98,28 @@ class Recalls(object):
 
     def get_date_range(self) -> tuple:
         return self.df['REPORTED_DATE'].min().date(), self.df['REPORTED_DATE'].max().date()
+
+    def get_recalls_and_affected_units_by_manufacturer(self):
+        vehicles_by_manufacturer = (self.df[['MANUFACTURER', 'VEHICLE_MODEL', 'VEHICLE_YEAR']]
+                                    .drop_duplicates()).groupby('MANUFACTURER').count()
+
+        recalls_by_manufacturer = (self.df[['MANUFACTURER', 'RECALL_ID']]
+                                   .drop_duplicates()).groupby('MANUFACTURER').count()
+
+        affected_units_by_manufacturer = (self.df[['RECALL_ID', 'MANUFACTURER', 'AFFECTED_UNITS']]
+                                          .drop_duplicates()).groupby('MANUFACTURER').sum(numeric_only=True)[['AFFECTED_UNITS']]
+
+        by_manufacturer = pd.merge(
+            vehicles_by_manufacturer, recalls_by_manufacturer, left_index=True, right_index=True)
+        by_manufacturer = pd.merge(
+            by_manufacturer, affected_units_by_manufacturer, left_index=True, right_index=True)
+
+        by_manufacturer.reset_index(inplace=True)
+        by_manufacturer.drop(columns='VEHICLE_YEAR', inplace=True)
+        by_manufacturer.rename(columns={'MANUFACTURER': 'Manufacturer',
+                                        'VEHICLE_MODEL': 'Recalled vehicles',
+                                        'RECALL_ID': 'Recalls',
+                                        'AFFECTED_UNITS': 'Affected vehicle units'},
+                               inplace=True)
+
+        return by_manufacturer.to_dict('records')

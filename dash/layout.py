@@ -39,7 +39,23 @@ def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
             dbc.Row([dbc.Col(card)
                     for card in CardsList()], style={'margin-top': 10})
         ]),
-        dash_table.DataTable(id='manufacturers-table'),
+        Card([
+            html.H6("Manufacturer details"),
+            dash_table.DataTable(
+                id='manufacturers-table',
+                virtualization=True,
+                fixed_rows={'headers': True},
+                style_table={'height': 300},
+                style_cell={
+                    'textAlign': 'left',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'maxWidth': 0
+                },
+                sort_action='native',
+                style_as_list_view=True,
+            )
+        ]),
         Card([
             dbc.Row([
                 dbc.Col(
@@ -82,7 +98,7 @@ def CardsList() -> list:
         dbc.Card(
             [
                 html.H2(id='recalls-count', className="card-title"),
-                html.P("Recalls count", className="card-text"),
+                html.P("Recalls", className="card-text"),
             ],
             body=True,
             color="light",
