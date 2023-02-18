@@ -4,11 +4,13 @@ from dash import dcc, html, dash_table
 from recalls import Recalls
 import pandas as pd
 from datetime import date
+import dash_loading_spinners as dls
 
 
 def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
     recalls = Recalls(df)
     min_reported_date, max_reported_date = recalls.get_date_range()
+    manufacturers = recalls.get_manufacturers()
 
     return html.Div([
         Header(app),
@@ -18,7 +20,8 @@ def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
                     Select(
                         label='Manufacturer',
                         id='select-manufacturer',
-                        options=recalls.get_manufacturers()
+                        options=manufacturers,
+                        value=manufacturers[0]
                     )
                 ),
                 dbc.Col(
@@ -36,46 +39,48 @@ def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
                         max_reported_date=max_reported_date
                     ))
                     ], style={'margin-top': 10}),
-            dbc.Row([dbc.Col(card)
+            dbc.Row([dbc.Col(dls.Hash((card)))
                     for card in CardsList()], style={'margin-top': 10})
         ]),
         Card([
             html.H6("Manufacturer details"),
-            dash_table.DataTable(
-                id='manufacturers-table',
-                virtualization=True,
-                fixed_rows={'headers': True},
-                style_table={'height': 300},
-                style_cell={
-                    'textAlign': 'left',
-                    'overflow': 'hidden',
-                    'textOverflow': 'ellipsis',
-                    'maxWidth': 0
-                },
-                sort_action='native',
-                style_as_list_view=True,
+            dls.Hash(
+                dash_table.DataTable(
+                    id='manufacturers-table',
+                    virtualization=True,
+                    fixed_rows={'headers': True},
+                    style_table={'height': 300},
+                    style_cell={
+                        'textAlign': 'left',
+                        'overflow': 'hidden',
+                        'textOverflow': 'ellipsis',
+                        'maxWidth': 0
+                    },
+                    sort_action='native',
+                    style_as_list_view=True,
+                )
             )
         ]),
         Card([
             dbc.Row([
                 dbc.Col(
-                    dcc.Graph(id="recalls-and-affected-units-by-reported-date-graph")),
+                    dls.Hash(dcc.Graph(id="recalls-and-affected-units-by-reported-date-graph"))),
                 dbc.Col(
-                    dcc.Graph(id="affected-units-distribution-graph")),
+                    dls.Hash(dcc.Graph(id="affected-units-distribution-graph"))),
             ])
         ]),
         Card([
             dbc.Row([
                 dbc.Col(
-                    dcc.Graph(id="recalls-distribution")),
+                    dls.Hash(dcc.Graph(id="recalls-distribution"))),
                 dbc.Col(
-                    dcc.Graph(id="recalls-and-affected-units-by-vehicle"))
+                    dls.Hash(dcc.Graph(id="recalls-and-affected-units-by-vehicle")))
             ])
         ]),
         Card([
             dbc.Row([
                 dbc.Col(
-                    dcc.Graph(id="recalls-and-affected-units-by-component")),
+                    dls.Hash(dcc.Graph(id="recalls-and-affected-units-by-component"))),
             ])
         ]),
     ])
@@ -146,5 +151,5 @@ def DatePickerRange(label: str, id: str, min_reported_date: date, max_reported_d
 def Select(label: str, id: str, **kwargs) -> list:
     return [
         dbc.Label(label, html_for=id),
-        dbc.Select(id=id, **kwargs, value='-')
+        dbc.Select(id=id, **kwargs)
     ]

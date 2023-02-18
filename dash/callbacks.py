@@ -10,12 +10,13 @@ def register_callbacks(app: dash.Dash, df: pd.DataFrame):
     @app.callback(
         Output("select-vehicle", "options"),
         Output("select-vehicle", "disabled"),
+        Output("select-vehicle", "value"),
         Input("select-manufacturer", "value"),
     )
     def update_select_vehicle(manufacturer: str) -> list:
         recalls = Recalls(df)
         vehicle_models = recalls.get_vehicle_models(manufacturer)
-        return [vehicle_models, not vehicle_models]
+        return [vehicle_models, not vehicle_models, Recalls.DEFAULT_OPTION]
 
     @app.callback(
         Output("recalls-count", "children"),

@@ -3,6 +3,7 @@ from datetime import datetime
 
 
 class Recalls(object):
+    DEFAULT_OPTION = '-'
     def __init__(self, df: pd.DataFrame) -> None:
         self.df = df
 
@@ -19,12 +20,12 @@ class Recalls(object):
         return f'{affected_units:,}'
 
     def get_manufacturers(self) -> list:
-        return ['-'] + self.df['MANUFACTURER'].unique().tolist()
+        return [Recalls.DEFAULT_OPTION] + self.df['MANUFACTURER'].unique().tolist()
 
     def get_vehicle_models(self, manufacturer: str) -> list:
-        if (manufacturer == '-'):
+        if (manufacturer == Recalls.DEFAULT_OPTION):
             return []
-        return ['-'] + self.df[self.df['MANUFACTURER'] == manufacturer]['VEHICLE_MODEL'].unique().tolist()
+        return  [Recalls.DEFAULT_OPTION] + self.df[self.df['MANUFACTURER'] == manufacturer]['VEHICLE_MODEL'].unique().tolist()
 
     def filter_by(self, time_range: tuple, manufacturer: str, vehicle_model: str) -> None:
         date_format = '%Y-%m-%d'
@@ -34,10 +35,10 @@ class Recalls(object):
         self.df = self.df[self.df['REPORTED_DATE'].between(
             start_date, end_date)]
 
-        if (manufacturer != '-'):
+        if (manufacturer != Recalls.DEFAULT_OPTION):
             self.df = self.df[self.df['MANUFACTURER'] == manufacturer]
 
-        if (vehicle_model != '-'):
+        if (vehicle_model != Recalls.DEFAULT_OPTION):
             self.df = self.df[self.df['VEHICLE_MODEL'] == vehicle_model]
 
     def get_recalls_and_affected_units_by_reported_period(self) -> pd.DataFrame:
