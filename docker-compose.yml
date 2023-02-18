@@ -1,0 +1,40 @@
+services:
+  nginx:
+    image: nginxproxy/nginx-proxy
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nginx-proxy-acme:
+    image: nginxproxy/acme-companion
+    restart: unless-stopped
+    volumes_from:
+        - nginx
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - acme:/etc/acme.sh
+    environment:
+        DEFAULT_EMAIL: ${DEFAULT_EMAIL}
+
+  dash:
+    build: dash/
+    environment:
+      - VIRTUAL_HOST=recalls.eda-dash.lat
+      - LETSENCRYPT_HOST=recalls.eda-dash.lat
+      - VIRTUAL_PORT=8050
+
+volumes:
+  html:
+  certs:
+  vhost:
+  acme:
