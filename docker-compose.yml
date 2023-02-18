@@ -38,4 +38,3 @@ volumes:
   certs:
   vhost:
   acme:
-  
