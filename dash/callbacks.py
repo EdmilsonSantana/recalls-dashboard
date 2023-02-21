@@ -31,19 +31,22 @@ def register_callbacks(app: dash.Dash, df: pd.DataFrame):
         Input("select-manufacturer", "value"),
         Input("select-vehicle", "value"),
         Input("reported-date-picker", "start_date"),
-        Input("reported-date-picker", "end_date")
+        Input("reported-date-picker", "end_date"),
+        Input("recall-search", "value")
     )
     def update_cards_and_charts(
             manufacturer: str,
             vehicle: str,
             reported_start_date: str,
-            reported_end_date: str) -> list:
+            reported_end_date: str,
+            recall_id: str) -> list:
         recalls = Recalls(df)
 
         recalls.filter_by(
             time_range=(reported_start_date, reported_end_date),
             manufacturer=manufacturer,
-            vehicle_model=vehicle
+            vehicle_model=vehicle,
+            recall_id=recall_id
         )
 
         charts = RecallsCharts(recalls)

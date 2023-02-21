@@ -5,11 +5,12 @@ from recalls import Recalls
 import pandas as pd
 from datetime import date
 import dash_loading_spinners as dls
-
+from dateutil.relativedelta import relativedelta
 
 def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
     recalls = Recalls(df)
     min_reported_date, max_reported_date = recalls.get_date_range()
+    start_date = date.today() - relativedelta(years=1)
     manufacturers = recalls.get_manufacturers()
 
     return html.Div([
@@ -30,13 +31,21 @@ def MainLayout(app: dash.Dash, df: pd.DataFrame) -> html.Div:
                         id='select-vehicle',
                     )
                 ),
+                dbc.Col([
+                    dbc.Label("Recall ID"),
+                    dbc.Input(
+                        id="recall-search",
+                        type="search"
+                    )
+                ]),
             ]),
             dbc.Row([
                     dbc.Col(DatePickerRange(
                         label='Reported Date',
                         id='reported-date-picker',
                         min_reported_date=min_reported_date,
-                        max_reported_date=max_reported_date
+                        max_reported_date=max_reported_date,
+                        start_date=start_date
                     ))
                     ], style={'margin-top': 10}),
             dbc.Row([dbc.Col(dls.Hash((card)))
@@ -111,7 +120,7 @@ def CardsList() -> list:
         dbc.Card(
             [
                 html.H2(id='vehicles-count', className="card-title"),
-                html.P("Distinct vehicles", className="card-text"),
+                html.P("Vehicles (model and year)", className="card-text"),
             ],
             body=True,
             color="dark",
@@ -133,7 +142,12 @@ def Card(children: list) -> dbc.Card:
     return dbc.Card(children=children, style={'margin': 5}, body=True)
 
 
-def DatePickerRange(label: str, id: str, min_reported_date: date, max_reported_date: date) -> list:
+def DatePickerRange(
+        label: str,
+        id: str,
+        min_reported_date: date,
+        max_reported_date: date,
+        start_date: date) -> list:
     return [
         dbc.Label(label, html_for=id),
         dcc.DatePickerRange(
@@ -141,7 +155,7 @@ def DatePickerRange(label: str, id: str, min_reported_date: date, max_reported_d
             min_date_allowed=min_reported_date,
             max_date_allowed=max_reported_date,
             initial_visible_month=min_reported_date,
-            start_date=min_reported_date,
+            start_date=start_date,
             end_date=max_reported_date,
             style={"display": "block"}
         )

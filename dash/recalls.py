@@ -27,7 +27,7 @@ class Recalls(object):
             return []
         return  [Recalls.DEFAULT_OPTION] + self.df[self.df['MANUFACTURER'] == manufacturer]['VEHICLE_MODEL'].unique().tolist()
 
-    def filter_by(self, time_range: tuple, manufacturer: str, vehicle_model: str) -> None:
+    def filter_by(self, time_range: tuple, manufacturer: str, vehicle_model: str, recall_id: str) -> None:
         date_format = '%Y-%m-%d'
         start_date = datetime.strptime(time_range[0], date_format)
         end_date = datetime.strptime(time_range[1], date_format)
@@ -40,6 +40,9 @@ class Recalls(object):
 
         if (vehicle_model != Recalls.DEFAULT_OPTION):
             self.df = self.df[self.df['VEHICLE_MODEL'] == vehicle_model]
+
+        if (recall_id):
+            self.df = self.df[self.df['RECALL_ID'].str.contains(recall_id)]
 
     def get_recalls_and_affected_units_by_reported_period(self) -> pd.DataFrame:
         reported_recalls = self.get_reported_recalls_and_affected_units()
@@ -77,10 +80,12 @@ class Recalls(object):
                             'VEHICLE_MODEL', 'VEHICLE_YEAR', 'AFFECTED_UNITS']
         recalls = self.df[selected_columns].drop_duplicates()
 
+        recalls['VEHICLE'] = recalls['VEHICLE_MODEL'] + ' - ' + recalls['VEHICLE_YEAR'].astype(str)
+
         affected_units_by_vehicle = recalls.groupby(
-            ['VEHICLE_MODEL', 'VEHICLE_YEAR']).sum(numeric_only=True)
+            ['MANUFACTURER', 'VEHICLE']).sum(numeric_only=True)
         recalls_by_vehicle = recalls.groupby(
-            ['VEHICLE_MODEL', 'VEHICLE_YEAR']).count()
+            ['MANUFACTURER', 'VEHICLE']).count()
 
         recalls_by_vehicle.drop(columns=['AFFECTED_UNITS'], inplace=True)
 
@@ -120,7 +125,7 @@ class Recalls(object):
         by_manufacturer.rename(columns={'MANUFACTURER': 'Manufacturer',
                                         'VEHICLE_MODEL': 'Recalled vehicles',
                                         'RECALL_ID': 'Recalls',
-                                        'AFFECTED_UNITS': 'Affected vehicle units'},
+                                        'AFFECTED_UNITS': 'Vehicle units'},
                                inplace=True)
 
         return by_manufacturer.to_dict('records')

@@ -23,7 +23,8 @@ class RecallsCharts(object):
                 line=dict(color=px.colors.qualitative.T10[0]),
                 x=x,
                 y=by_recalls_and_affected_units['RECALL_ID'],
-                name='Recalls'
+                name='Recalls',
+                showlegend=False
             ),
             row=1,
             col=1
@@ -34,7 +35,8 @@ class RecallsCharts(object):
                 line=dict(color=px.colors.qualitative.T10[1]),
                 x=x,
                 y=by_recalls_and_affected_units['AFFECTED_UNITS'],
-                name='Affected vehicles'
+                name='Vehicle units',
+                showlegend=False
             ),
             row=2,
             col=1
@@ -43,6 +45,9 @@ class RecallsCharts(object):
         fig.update_layout(
             title_text='Number of recalls and affected vehicle units by reported date'
         )
+
+        y_titles = {'x': 'Recalls', 'x2': 'Vehicle units'}
+        fig.for_each_yaxis(lambda y: y.update(title=y_titles[y.anchor]))
 
         return fig
 
@@ -64,12 +69,12 @@ class RecallsCharts(object):
                     "COMPONENT_NAME": 'Component Name'}
         )
 
-        fig.update_yaxes(matches=None)
         fig.for_each_annotation(lambda a: a.update(text=''))
 
-        y_titles = {'x2': 'Recalls', 'x': 'Affected vehicle units'}
+        y_titles = {'x2': 'Recalls', 'x': 'Vehicle units'}
         fig.for_each_yaxis(lambda y: y.update(title=y_titles[y.anchor]))
 
+        fig.update_yaxes(matches=None)
         fig.update_layout(hovermode="x")
         fig.update_traces(hovertemplate=None)
 
@@ -84,7 +89,7 @@ class RecallsCharts(object):
         fig = px.violin(
             reported_recalls_and_affected_units,
             y='AFFECTED_UNITS',
-            labels={'AFFECTED_UNITS': 'Affected vehicle units'},
+            labels={'AFFECTED_UNITS': 'Vehicle units'},
             color_discrete_sequence=px.colors.qualitative.T10,
             title='Number of affected vehicle units distribution'
         )
@@ -99,20 +104,70 @@ class RecallsCharts(object):
         if (recalls_and_affected_units_by_vehicle.empty):
             return {}
 
-        fig = px.scatter(# Problem: vehicle with same x and y could be overlapped 
-            recalls_and_affected_units_by_vehicle,
-            y='RECALL_ID',
-            x='AFFECTED_UNITS',
-            hover_name='VEHICLE_MODEL',
-            hover_data=['MANUFACTURER', 'VEHICLE_YEAR'],
-            color_discrete_sequence=px.colors.qualitative.T10,
-            labels={'VEHICLE_MODEL': 'Vehicle Model',
-                    'VEHICLE_YEAR': 'Vehicle Year',
-                    'AFFECTED_UNITS': 'Affected vehicles',
-                    'MANUFACTURER': 'Manufacturer',
-                    'RECALL_ID': 'Recalls'},
-            title='Number of recalls and affected vehicle units by vehicle'
+        fig = make_subplots(rows=2, cols=1)
+        x = recalls_and_affected_units_by_vehicle['VEHICLE']
+        manufacturer = recalls_and_affected_units_by_vehicle['MANUFACTURER']
+        recalls_mean = recalls_and_affected_units_by_vehicle['RECALL_ID'].median()
+        affected_units_mean = recalls_and_affected_units_by_vehicle['AFFECTED_UNITS'].median()
+
+        fig.add_trace(
+            go.Scatter(
+                line=dict(color=px.colors.qualitative.T10[0]),
+                x=x,
+                y=recalls_and_affected_units_by_vehicle['RECALL_ID'],
+                mode='markers',
+                name='Recalls',
+                hovertemplate='<b>Recalls</b>: %{y}' +
+                '<br><b>Vehicle</b>: %{x}<br>' +
+                '<b>Manufacturer</b>: %{text}',
+                text=manufacturer,
+                showlegend=False
+            ),
+            row=1,
+            col=1
         )
+
+        fig.add_trace(
+            go.Scatter(
+                line=dict(color=px.colors.qualitative.T10[1]),
+                x=x,
+                y=recalls_and_affected_units_by_vehicle['AFFECTED_UNITS'],
+                mode='markers',
+                name='Vehicle units',
+                hovertemplate='<b>Vehicle Units</b>: %{y:.2f}' +
+                '<br><b>Vehicle</b>: %{x}<br>' +
+                '<b>Manufacturer</b>: %{text}',
+                text=manufacturer,
+                showlegend=False
+            ),
+            row=2,
+            col=1
+        )
+
+        fig.add_hline(
+            y=recalls_mean,
+            line_width=3,
+            row=1,
+            col=1,
+            line_dash="dash",
+            annotation_text="Recalls median")
+
+        fig.add_hline(
+            y=affected_units_mean,
+            line_width=3,
+            row=2,
+            col=1,
+            line_dash="dash",
+            annotation_text="Vehicle units median")
+
+        fig.update_layout(
+            title_text='Number of recalls and affected vehicle units by vehicle',
+        )
+
+        y_titles = {'x': 'Recalls', 'x2': 'Vehicle units'}
+        fig.for_each_yaxis(lambda y: y.update(title=y_titles[y.anchor]))
+
+        fig.update_xaxes(showticklabels=False, categoryorder="total descending")
 
         return fig
 
@@ -130,7 +185,7 @@ class RecallsCharts(object):
             hover_data=['MANUFACTURER', 'REPORTED_DATE'],
             color_discrete_sequence=px.colors.qualitative.T10,
             labels={'VEHICLE_MODEL': 'Recalled vehicles',
-                    'AFFECTED_UNITS': 'Affected vehicle units',
+                    'AFFECTED_UNITS': 'Vehicle units',
                     'MANUFACTURER': 'Manufacturer',
                     'REPORTED_DATE': 'Reported Date'},
             title='Recalls distribution by number of affected units and vehicles recalled'
