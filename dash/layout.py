@@ -120,7 +120,7 @@ def CardsList() -> list:
         dbc.Card(
             [
                 html.H2(id='vehicles-count', className="card-title"),
-                html.P("Vehicles (model and year)", className="card-text"),
+                html.P("Vehicle models", className="card-text"),
             ],
             body=True,
             color="dark",
