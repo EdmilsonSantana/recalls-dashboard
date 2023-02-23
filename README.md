@@ -1,6 +1,11 @@
 # recalls-dashboard
 
-## Instructions
+:notebook: [Notebook](https://edmilsonsantana.github.io/recalls-dashboard/)
+
+:bar_chart: [Dashboard](https://recalls.eda-dash.lat/)
+
+
+## Development
 
 To get started, first clone this repo:
 
